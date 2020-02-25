@@ -26,7 +26,6 @@ func main() {
 	r.NotFoundHandler = http.HandlerFunc(notFound)
 	r.HandleFunc("/", home)
 	r.HandleFunc("/contact", contact)
-	r.HandleFunc("/faq", faq)
 
 	http.ListenAndServe(":3000", r)
 }
@@ -49,9 +48,4 @@ func contact(w http.ResponseWriter, r *http.Request) {
 	if err := contactTemplate.Execute(w, nil); err != nil {
 		panic(err)
 	}
-}
-
-func faq(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprintf(w, "<h1>Frequently Asked Questions</h1><p>Here is a list of questions our users frequently ask.</p>")
 }
