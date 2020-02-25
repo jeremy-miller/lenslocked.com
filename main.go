@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"net/http"
 	"github.com/jeremy-miller/lenslocked.com/views"
+	"net/http"
 )
 
 var (
