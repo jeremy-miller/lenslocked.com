@@ -2,19 +2,20 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/jeremy-miller/lenslocked.com/views"
-	"net/http"
 )
 
 var (
-	homeView 	*views.View
+	homeView    *views.View
 	contactView *views.View
 )
 
 func main() {
-	homeView = views.New("views/home.gohtml")
-	contactView = views.New("views/contact.gohtml")
+	homeView = views.New("bootstrap", "views/home.gohtml")
+	contactView = views.New("bootstrap", "views/contact.gohtml")
 
 	r := mux.NewRouter()
 	r.NotFoundHandler = http.HandlerFunc(notFound)
@@ -32,14 +33,14 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := homeView.Template.Execute(w, nil); err != nil {
+	if err := homeView.Template.ExecuteTemplate(w, homeView.Layout, nil); err != nil {
 		panic(err)
 	}
 }
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := contactView.Template.Execute(w, nil); err != nil {
+	if err := contactView.Template.ExecuteTemplate(w, contactView.Layout, nil); err != nil {
 		panic(err)
 	}
 }
