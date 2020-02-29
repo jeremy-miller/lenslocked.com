@@ -7,23 +7,16 @@ import (
 	"github.com/jeremy-miller/lenslocked.com/controllers"
 
 	"github.com/gorilla/mux"
-	"github.com/jeremy-miller/lenslocked.com/views"
-)
-
-var (
-	homeView    *views.View
-	contactView *views.View
 )
 
 func main() {
-	homeView = views.New("bootstrap", "views/home.gohtml")
-	contactView = views.New("bootstrap", "views/contact.gohtml")
+	static := controllers.NewStatic()
 	users := controllers.NewUsers()
 
 	r := mux.NewRouter()
 	r.NotFoundHandler = http.HandlerFunc(notFound)
-	r.HandleFunc("/", home).Methods("GET")
-	r.HandleFunc("/contact", contact).Methods("GET")
+	r.Handle("/", static.Home).Methods("GET")
+	r.Handle("/contact", static.Contact).Methods("GET")
 	r.HandleFunc("/signup", users.New).Methods("GET")
 	r.HandleFunc("/signup", users.Create).Methods("POST")
 
@@ -34,20 +27,4 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusNotFound)
 	fmt.Fprintf(w, "<h1>Sorry, but we couldn't find the page you were looking for</h1>")
-}
-
-func home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	must(homeView.Render(w, nil))
-}
-
-func contact(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	must(contactView.Render(w, nil))
-}
-
-func must(err error) {
-	if err != nil {
-		panic(err)
-	}
 }
