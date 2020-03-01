@@ -7,6 +7,16 @@ import (
 	"github.com/jeremy-miller/lenslocked.com/controllers"
 
 	"github.com/gorilla/mux"
+
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+)
+
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "postgres"
+	dbname   = "lenslocked"
 )
 
 func main() {
