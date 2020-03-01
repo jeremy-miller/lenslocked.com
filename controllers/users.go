@@ -15,7 +15,7 @@ type Users struct {
 // templates are not parsed correctly and should only be used during initial setup.
 func NewUsers() *Users {
 	return &Users{
-		NewView: views.New("bootstrap", "views/users/new.gohtml"),
+		NewView: views.New("bootstrap", "users/new"),
 	}
 }
 
