@@ -10,6 +10,8 @@ import (
 var (
 	// ErrNotFound is returned when a resource cannot be found in the database.
 	ErrNotFound = errors.New("models: resource not found")
+	// ErrInvalidID is returned when an invalid ID is provided to a method (e.g. Delete).
+	ErrInvalidID = errors.New("models: ID must be > 0")
 )
 
 type User struct {
@@ -42,24 +44,46 @@ func (us *UserService) DestructiveReset() {
 }
 
 // ByID will look up a user with the provided id.
-//
-// If the user is found, a nil error is returned.
-// If the user is not found, an ErrNotFound error will be returned.
-// If there was a different error, it will be returned.
 func (us *UserService) ByID(id uint) (*User, error) {
 	var user User
-	err := us.db.Where("id = ?", id).First(&user).Error
-	switch err {
-	case nil:
-		return &user, nil
-	case gorm.ErrRecordNotFound:
-		return nil, ErrNotFound
-	default:
-		return nil, err
+	db := us.db.Where("id = ?", id)
+	err := first(db, &user)
+	return &user, err
+}
+
+// ByEmail will look up a user with the provided email address.
+func (us *UserService) ByEmail(email string) (*User, error) {
+	var user User
+	db := us.db.Where("email = ?", email)
+	err := first(db, &user)
+	return &user, err
+}
+
+// first will query using the provided gorm.DB and will put the first item found into dst.
+// If nothing is found, it will return ErrNotFound.
+func first(db *gorm.DB, dst interface{}) error {
+	err := db.First(dst).Error
+	if err == gorm.ErrRecordNotFound {
+		return ErrNotFound
 	}
+	return err
 }
 
 // Create creates the provided user and will backfill data (e.g. ID, CreatedAt, UpdatedAt, DeletedAt).
 func (us *UserService) Create(user *User) error {
 	return us.db.Create(user).Error
+}
+
+// Update will update the provided user with all of the data in the provided user object.
+func (us *UserService) Update(user *User) error {
+	return us.db.Save(user).Error
+}
+
+// Delete will delete the user with the provided id.
+func (us *UserService) Delete(id uint) error {
+	if id == 0 { // necessary since GORM will delete all data in table if given an invalid primary key value
+		return ErrInvalidID
+	}
+	user := User{Model: gorm.Model{ID: id}}
+	return us.db.Delete(&user).Error
 }
