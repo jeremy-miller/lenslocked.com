@@ -14,6 +14,8 @@ var (
 	ErrNotFound = errors.New("models: resource not found")
 	// ErrInvalidID is returned when an invalid ID is provided to a method (e.g. Delete).
 	ErrInvalidID = errors.New("models: ID must be > 0")
+
+	ErrInvalidPassword = errors.New("models: incorrect password provided")
 )
 
 const pepper = "some-random-string"
@@ -106,4 +108,22 @@ func (us *UserService) Delete(id uint) error {
 	}
 	user := User{Model: gorm.Model{ID: id}}
 	return us.db.Delete(&user).Error
+}
+
+// Authenticate can be used to authenticate a user with the provided email address and password.
+func (us *UserService) Authenticate(email, password string) (*User, error) {
+	foundUser, err := us.ByEmail(email)
+	if err != nil {
+		return nil, ErrNotFound
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(foundUser.PasswordHash), []byte(password+pepper))
+	if err != nil {
+		switch err {
+		case bcrypt.ErrMismatchedHashAndPassword:
+			return nil, ErrInvalidPassword
+		default:
+			return nil, err
+		}
+	}
+	return foundUser, nil
 }
