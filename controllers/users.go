@@ -10,6 +10,7 @@ import (
 
 type Users struct {
 	NewView     *views.View
+	LoginView   *views.View
 	userService *models.UserService
 }
 
@@ -18,16 +19,8 @@ type Users struct {
 func NewUsers(us *models.UserService) *Users {
 	return &Users{
 		NewView:     views.New("bootstrap", "users/new"),
+		LoginView:   views.New("bootstrap", "users/login"),
 		userService: us,
-	}
-}
-
-// New is used to render the form where a user can create a new user account.
-//
-// GET /signup
-func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	if err := u.NewView.Render(w, nil); err != nil {
-		panic(err)
 	}
 }
 
@@ -52,4 +45,20 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintln(w, user)
+}
+
+type LoginForm struct {
+	Email    string `schema:"email"`
+	Password string `schema:"password"`
+}
+
+// Login is used to authenticate the request.
+//
+// POST /login
+func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
+	var form LoginForm
+	if err := parseForm(r, &form); err != nil {
+		panic(err)
+	}
+
 }

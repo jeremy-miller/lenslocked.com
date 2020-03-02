@@ -38,8 +38,10 @@ func main() {
 	r.NotFoundHandler = http.HandlerFunc(notFound)
 	r.Handle("/", static.Home).Methods("GET")
 	r.Handle("/contact", static.Contact).Methods("GET")
-	r.HandleFunc("/signup", users.New).Methods("GET")
+	r.Handle("/signup", users.NewView).Methods("GET")
 	r.HandleFunc("/signup", users.Create).Methods("POST")
+	r.Handle("/login", users.LoginView).Methods("GET")
+	r.HandleFunc("/login", users.Login).Methods("POST")
 
 	http.ListenAndServe(":3000", r)
 }
