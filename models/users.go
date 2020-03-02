@@ -16,6 +16,8 @@ var (
 	ErrInvalidID = errors.New("models: ID must be > 0")
 )
 
+const pepper = "some-random-string"
+
 type User struct {
 	gorm.Model
 	Name         string
@@ -82,7 +84,8 @@ func first(db *gorm.DB, dst interface{}) error {
 
 // Create creates the provided user and will backfill data (e.g. ID, CreatedAt, UpdatedAt, DeletedAt).
 func (us *UserService) Create(user *User) error {
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	pwBytes := []byte(user.Password + pepper)
+	hashedBytes, err := bcrypt.GenerateFromPassword(pwBytes, bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
